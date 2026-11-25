@@ -1,0 +1,728 @@
+---
+import { Image } from 'astro:assets';
+
+import photo1 from '../assets/gallery/photo1.jpeg';
+import photo2 from '../assets/gallery/photo2.jpeg';
+import photo3 from '../assets/gallery/photo3.jpeg';
+import photo4 from '../assets/gallery/photo4.jpeg';
+import photo5 from '../assets/gallery/photo5.jpeg';
+import photo6 from '../assets/gallery/photo6.jpeg';
+import photo7 from '../assets/gallery/photo7.jpeg';
+import photo8 from '../assets/gallery/photo8.jpeg';
+import photo9 from '../assets/gallery/photo9.jpeg';
+
+const photos = [
+	{ title: "Engineering Two", asset: photo1 },
+	{ title: "Auto Train", asset: photo2 },
+	{ title: "Glasson Dock 9", asset: photo3 },
+	{ title: "Evening Star 92220", asset: photo4 },
+	{ title: "Turbine 01", asset: photo5 },
+	{ title: "Colour Signals 08", asset: photo6 },
+	{ title: "Picadilly 67", asset: photo7 },
+	{ title: "Traffic Light", asset: photo8 },
+	{ title: "Lane 3", asset: photo9 },
+];
+
+const projects = [
+	{
+		name: "Portfolio v2",
+		href: "https://github.com/Alfie-Sci/portfolio-website",
+		stack: "Astro, CSS, Cloudflare Pages",
+		text: "This website. Built with semantic HTML and CSS and no client-side JavaScript, partly for fast loads and partly as a challenge to myself.",
+		link: { href: "https://alfieralls.com", label: "alfieralls.com" },
+	},
+	{
+		name: "RailGraph UK",
+		href: "https://github.com/Alfie-Sci/RailGraph",
+		stack: "React, deck.gl, OpenStreetMap",
+		text: "An open-source interactive map of how the UK railway network has changed over time, with a timeline scroller. Currently focused on Yorkshire's closed branch lines. The data is messy and needs lots of manual review, but the result is worth it.",
+		link: { href: "https://railgraph.co.uk", label: "railgraph.co.uk" },
+	},
+	{
+		name: "Pi Departure Board",
+		stack: "Raspberry Pi Zero W, Python, Bash",
+		text: "A planned hardware display that pulls live train movements for a chosen location from the Realtime Trains API. Waiting for hardware prices to settle before buying the parts.",
+	},
+	{
+		name: "Optiplex Homelab",
+		stack: "Proxmox, Docker, Samba",
+		text: "A legacy Dell Optiplex running Proxmox and an Ubuntu VM with Nextcloud, Immich and Pi-hole, plus Portainer and Uptime Kuma to keep an eye on things.",
+	},
+];
+
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Alfie Ralls: Computer Science student, tinkerer, railway enthusiast.">
+	<meta name="theme-color" content="#0059a6">
+	<title>Alfie Ralls</title>
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@300;400;500;700&display=swap">
+	<style is:global>
+		:root {
+			color-scheme: light dark;
+
+			/* The wall the signs are mounted on */
+			--wall: light-dark(#e4e4df, #1b1d21);
+			--wall-text: light-dark(#3b3b38, #a9acb2);
+
+			/* Sign colours (these stay the same in light and dark mode) */
+			--blue: #0059a6;
+			--black: #131313;
+			--white: #ffffff;
+			--yellow: #ffd100;
+			--amber: #ffaa00;
+			--amber-dim: #cc8800;
+			--green: #00ff00;
+			--grey: #5a5a5a;
+			--line: #d6d6d1;
+
+			/* Rail Alphabet 2 first, if you ever self-host it, then close lookalikes */
+			--sans: "Rail Alphabet 2", "Rail Alphabet", "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+			--dots: 'Doto', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+		}
+
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; }
+
+		body {
+			margin: 0;
+			background: var(--wall);
+			color: var(--wall-text);
+			font-family: var(--sans);
+			line-height: 1.55;
+		}
+
+		:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+
+		/* ---------- Signs ---------- */
+		.sign {
+			--bg: var(--black);
+			--fg: var(--white);
+			--radius: 1rem;
+			--inset: 0.4rem;
+			position: relative;
+			background: var(--bg);
+			color: var(--fg);
+			border-radius: var(--radius);
+			padding: clamp(1.25rem, 3vw, 2rem);
+			box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+		}
+
+		/* The thin keyline just inside the edge, with a concentric corner radius
+		   so it follows the sign's rounded corners cleanly */
+		.sign::before {
+			content: "";
+			position: absolute;
+			inset: var(--inset);
+			border: 3px solid var(--fg);
+			border-radius: calc(var(--radius) - var(--inset));
+			pointer-events: none;
+		}
+
+		/* 1980s InterCity livery: grey enamel with red and white stripes */
+		.sign--intercity {
+			--bg: #474c51;
+			--ic-red: #d0202b;
+			/* extra room at the bottom for the stripe */
+			padding-bottom: calc(clamp(1.25rem, 3vw, 2rem) + 1.9rem);
+		}
+
+		/* keep the full keyline frame (including its bottom edge and rounded
+           corners) and fill the bottom of it with the white band */
+		.sign--intercity::before {
+			background: linear-gradient(to top, #fff 0 2.2rem, transparent 2.2rem);
+		}
+
+		.sign--intercity .stripes {
+			position: absolute;
+			left: calc(var(--inset) + 3px);
+			right: calc(var(--inset) + 3px);
+			bottom: 1.05rem;
+			height: 0.9rem;
+			background: var(--ic-red);
+		}
+
+		/* Corner bolts, like a real enamel sign */
+		.sign--intercity .bolt {
+			position: absolute;
+			width: 0.55rem;
+			height: 0.55rem;
+			border-radius: 50%;
+			background: radial-gradient(circle at 35% 35%, #ffffff, #a3abb5 60%, #5b6472);
+		}
+		.bolt--tl { top: 0.85rem; left: 0.85rem; }
+		.bolt--tr { top: 0.85rem; right: 0.85rem; }
+		.bolt--bl { bottom: 0.85rem; left: 0.85rem; }
+		.bolt--br { bottom: 0.85rem; right: 0.85rem; }
+
+
+		/* ---------- Landing page ---------- */
+		.hero {
+			width: min(72rem, calc(100% - 2rem));
+			min-height: 100svh;
+			margin: 0 auto;
+			padding: clamp(1rem, 3vw, 2.5rem) 0;
+			display: grid;
+			align-content: center;
+			gap: clamp(0.75rem, 1.6vw, 1.25rem);
+		}
+
+		.nameboard {
+			display: flex;
+			align-items: center;
+			gap: clamp(1rem, 3vw, 2rem);
+		}
+
+		.logo { flex: none; width: auto; height: clamp(4rem, 10vw, 7rem); }
+
+		.nameboard h1 {
+			margin: 0;
+			font-size: clamp(2.6rem, 8.5vw, 6.5rem);
+			font-weight: 700;
+			letter-spacing: -0.035em;
+			line-height: 0.95;
+		}
+
+		.nameboard p {
+			margin: 0.7rem 0 0;
+			font-size: clamp(1rem, 2.4vw, 1.55rem);
+			font-weight: 400;
+		}
+
+		/* ---------- Departure board ---------- */
+		.board {
+			--bg: #050505;
+			--fg: #3a3a3a;               /* subtle grey bezel line */
+			color: var(--amber);
+			font-family: var(--dots);
+			font-variation-settings: "ROND" 100;
+			font-weight: 500;
+			letter-spacing: 0.05em;
+		}
+
+		.board-title {
+			margin: 0 0 0.9rem;
+			font-family: var(--sans);
+			font-size: 0.95rem;
+			font-weight: 700;
+			letter-spacing: 0;
+			color: var(--white);
+		}
+
+		.cis-board { font-size: clamp(1.05rem, 2.5vw, 1.9rem); }
+
+		.cis-on-time { color: var(--green); text-shadow: 0 0 5px rgba(0, 255, 0, 0.4); }
+
+		.cis-row {
+			display: flex;
+			justify-content: flex-start;
+			text-shadow: 0 0 1px rgba(255, 170, 0, 0.5);
+		}
+
+		.cis-colon {
+			color: transparent;
+			text-shadow: none;
+			position: relative;
+			display: inline-block;
+			width: 0.5em;
+		}
+		.cis-colon::after {
+			content: ""; position: absolute; left: 40%; top: 35%;
+			transform: translateX(-50%); width: 2px; height: 2px;
+			background-color: var(--amber); box-shadow: 0 8px 0 var(--amber);
+		}
+
+		.cis-rank   { width: 2.6em; flex: none; }
+		.cis-time   { width: 4em; flex: none; }
+		.cis-plat   { width: 2.4em; flex: none; text-align: center; }
+		.cis-dest   { flex: 1; min-width: 0; padding-left: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.cis-status { width: 6em; flex: none; text-align: right; }
+
+		.cis-scroll-row {
+			display: flex;
+			font-size: 0.8em;
+			margin-bottom: 0.9em;
+			padding-bottom: 0.6em;
+			background-image: linear-gradient(to right, var(--amber-dim) 1px, transparent 1px);
+			background-size: 2px 1px;
+			background-position: bottom left;
+			background-repeat: repeat-x;
+		}
+		.cis-board > div:last-child { background-image: none; margin-bottom: 0; padding-bottom: 0; }
+
+		.cis-calling-label { white-space: nowrap; margin-right: 1rem; color: var(--amber-dim); }
+		.cis-scroll-container { flex-grow: 1; overflow: hidden; position: relative; container-type: inline-size; }
+		.cis-scroll-text {
+			display: inline-block;
+			white-space: nowrap;
+			animation: cis-scroll linear infinite;
+			will-change: transform;
+			transform: translateZ(0);
+			backface-visibility: hidden;
+		}
+		@keyframes cis-scroll {
+			0%   { transform: translate3d(100cqi, 0, 0); }
+			100% { transform: translate3d(-100%, 0, 0); }
+		}
+
+		.cis-blink { animation: cis-blinker 2s step-start infinite; }
+		@keyframes cis-blinker { 50% { opacity: 0; } }
+
+		.board-note {
+			margin: 1.1rem 0 0;
+			font-family: var(--sans);
+			font-size: 0.85rem;
+			font-weight: 400;
+			letter-spacing: 0;
+			color: #8a8a8a;
+		}
+
+		/* ---------- Leaflets ---------- */
+		main {
+			width: min(52rem, calc(100% - 2rem));
+			margin: 0 auto;
+			padding: 1rem 0 0;
+		}
+
+		/* Shared: a tri-folded paper leaflet */
+		.leaflet {
+			--paper: #fbf9f3;
+			--accent: var(--blue);
+			position: relative;
+			background: var(--paper);
+			color: #151515;
+			margin: 0 0 2.25rem;
+			scroll-margin-top: 1rem;
+			overflow: hidden;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 10px 22px rgba(0, 0, 0, 0.2);
+		}
+
+		/* the two fold creases */
+		.leaflet::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+			background: linear-gradient(
+				90deg,
+				transparent calc(33.333% - 1px), rgba(0, 0, 0, 0.07) 33.333%, rgba(255, 255, 255, 0.45) calc(33.333% + 1px), transparent calc(33.333% + 3px),
+				transparent calc(66.666% - 1px), rgba(0, 0, 0, 0.07) 66.666%, rgba(255, 255, 255, 0.45) calc(66.666% + 1px), transparent calc(66.666% + 3px)
+			);
+		}
+
+		.leaflet-head { position: relative; padding: 1.5rem 1.75rem 2.4rem; }
+
+		.leaflet-head .eyebrow { margin: 0 0 0.4rem; font-size: 1rem; font-weight: 400; }
+
+		.leaflet-head h2 {
+			margin: 0;
+			font-size: clamp(2.4rem, 7vw, 4rem);
+			font-weight: 700;
+			letter-spacing: -0.035em;
+			line-height: 0.95;
+		}
+
+		.leaflet-body { padding: 1.75rem; }
+		.leaflet-body > :last-child { margin-bottom: 0; }
+
+		.leaflet p { margin: 0 0 1rem; font-size: 1.05rem; }
+		.leaflet a { color: var(--accent); text-underline-offset: 3px; }
+		.leaflet a:hover { color: #151515; }
+
+		/* 1. About: grey enamel and red/white stripes, InterCity style */
+		.leaflet--about { --accent: #d0202b; }
+		.leaflet--about .leaflet-head { background: #474c51; color: #fff; padding-bottom: 3.4rem; }
+		.leaflet--about .leaflet-head::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			height: 1.6rem;
+			background: linear-gradient(#d0202b 0 38%, transparent 38% 55%, #fff 55% 88%, transparent 88%);
+		}
+		.leaflet--about .leaflet-body > p:first-child { font-size: 1.35rem; font-weight: 700; line-height: 1.35; }
+
+		.skills {
+			margin-top: 1.5rem;
+			padding: 1rem 1.25rem;
+			background: #ecebe5;
+			border-left: 0.4rem solid var(--accent);
+		}
+		.skills p { margin: 0; font-size: 0.95rem; line-height: 1.9; }
+
+		/* 2. Projects: bright blue with diagonal red/white bands, Network SouthEast style */
+		.leaflet--projects { --accent: #1c5bb5; }
+		.leaflet--projects .leaflet-head {
+			color: #fff;
+			background: linear-gradient(
+				115deg,
+				#1c5bb5 0 60%, #fff 60% 63%, #e2231a 63% 76%, #fff 76% 79%, #14397e 79% 100%
+			);
+		}
+		.leaflet--projects .leaflet-body { counter-reset: svc; }
+
+		.project {
+			counter-increment: svc;
+			display: grid;
+			grid-template-columns: 2.8rem 1fr;
+			column-gap: 1rem;
+		}
+		.project::before {
+			content: counter(svc);
+			grid-column: 1;
+			grid-row: 1 / span 4;
+			align-self: start;
+			display: grid;
+			place-items: center;
+			width: 2.8rem;
+			height: 2.8rem;
+			background: var(--accent);
+			color: #fff;
+			font-weight: 700;
+			font-size: 1.5rem;
+		}
+		.project > * { grid-column: 2; }
+		.project + .project { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dotted var(--accent); }
+		.project h3 { margin: 0; font-size: 1.35rem; letter-spacing: -0.01em; }
+		.project h3 a { color: #151515; }
+		.project h3 a:hover { color: var(--accent); }
+		.stack { margin: 0.2rem 0 0.6rem !important; font-size: 0.85rem !important; font-weight: 700; color: var(--accent); }
+
+		/* 3. Photographs: yellow "day out" leaflet with halftone dots and a sticker */
+		.leaflet--photos { --paper: #fff7c9; --accent: #151515; }
+		.leaflet--photos .leaflet-head { background: #ffd100; color: #131313; border-bottom: 0.55rem solid #131313; }
+		.leaflet--photos .leaflet-head::before {
+			content: "";
+			position: absolute;
+			inset: 0 0 0 40%;
+			background-image: radial-gradient(circle, #131313 24%, transparent 26%);
+			background-size: 14px 14px;
+			-webkit-mask-image: linear-gradient(to left, #000, transparent);
+			mask-image: linear-gradient(to left, #000, transparent);
+			opacity: 0.85;
+		}
+		.leaflet--photos .leaflet-head > :not(.sticker) { position: relative; }
+
+		.sticker {
+			position: absolute;
+			right: 1.75rem;
+			top: 50%;
+			display: grid;
+			place-items: center;
+			width: 5.4rem;
+			height: 5.4rem;
+			border-radius: 50%;
+			background: #d0202b;
+			color: #fff;
+			font-size: 1.2rem;
+			font-weight: 700;
+			line-height: 1;
+			text-align: center;
+			transform: translateY(-50%) rotate(-12deg);
+			box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+		}
+
+		.gallery {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+			gap: 1.25rem;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.gallery figure {
+			margin: 0;
+			padding: 0.4rem 0.4rem 0;
+			background: #fff;
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+		}
+		.gallery li:nth-child(odd) figure { transform: rotate(-0.8deg); }
+		.gallery li:nth-child(even) figure { transform: rotate(0.8deg); }
+		.gallery img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+		.gallery figcaption {
+			margin: 0.4rem -0.4rem 0;
+			padding: 0.4rem 0.7rem;
+			background: #131313;
+			color: #ffd100;
+			font-size: 0.85rem;
+			font-weight: 700;
+		}
+
+		/* 4. Contact: narrower red enquiries leaflet with a cut-out coupon */
+		.leaflet--contact { --accent: #b3151f; max-width: 38rem; margin-right: auto; margin-left: auto; }
+		.leaflet--contact .leaflet-head { background: #d0202b; color: #fff; padding-bottom: 2rem; }
+		.leaflet--contact .leaflet-head::before {
+			content: "";
+			position: absolute;
+			inset: 0 0 0 50%;
+			background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0 0.7rem, transparent 0.7rem 1.4rem);
+			-webkit-mask-image: linear-gradient(to left, #000, transparent);
+			mask-image: linear-gradient(to left, #000, transparent);
+		}
+		.leaflet--contact .leaflet-head > * { position: relative; }
+
+		.coupon {
+			position: relative;
+			margin: 0;
+			padding: 1.5rem 1.25rem 0.75rem;
+			list-style: none;
+			border: 2px dashed #151515;
+			font-size: 1.05rem;
+		}
+		.coupon::before {
+			content: "Cut along the dotted line";
+			position: absolute;
+			top: -0.75rem;
+			left: 1rem;
+			padding: 0 0.5rem;
+			background: var(--paper);
+			font-size: 0.75rem;
+			font-weight: 700;
+		}
+		.coupon li { display: flex; gap: 1rem; padding: 0.6rem 0; }
+		.coupon li + li { border-top: 1px dotted #8a8a84; }
+		.coupon span { flex: 0 0 6.5rem; font-weight: 700; }
+
+		/* ---------- Motto ---------- */
+		.motto {
+			width: min(52rem, calc(100% - 2rem));
+			margin: 1rem auto 4rem;
+			font-size: clamp(1.4rem, 8.5vw, 4.5rem);
+			white-space: nowrap;
+			font-weight: 700;
+			letter-spacing: -0.045em;
+			line-height: 0.92;
+			text-align: center;
+			color: light-dark(#151515, #f1f1ee);
+		}
+
+		/* ---------- Footer ---------- */
+		footer { background: var(--black); color: var(--white); }
+
+		.hazard {
+			height: 0.7rem;
+			background: repeating-linear-gradient(45deg, var(--yellow) 0 14px, var(--black) 14px 28px);
+		}
+
+		footer p {
+			margin: 0;
+			padding: 1.25rem 1rem 1.75rem;
+			text-align: center;
+			font-size: 0.9rem;
+		}
+
+		/* ---------- Small screens ---------- */
+		@media (max-width: 760px) {
+			.logo { display: none; }
+		}
+
+		@media (max-width: 520px) {
+			.cis-board { font-size: 0.85rem; }
+			.cis-rank { width: 2.2em; }
+			.cis-time { width: 3.6em; }
+			.cis-plat { width: 1.8em; }
+			.cis-status { width: 5.2em; }
+			.cis-dest { padding-left: 0.5em; }
+			.leaflet-head, .leaflet-body { padding-left: 1.1rem; padding-right: 1.1rem; }
+			.leaflet-body { padding-top: 1.25rem; }
+			.project { grid-template-columns: 2.2rem 1fr; column-gap: 0.75rem; }
+			.project::before { width: 2.2rem; height: 2.2rem; font-size: 1.2rem; }
+			.sticker { width: 4rem; height: 4rem; font-size: 0.95rem; right: 1rem; }
+			.coupon li { flex-direction: column; gap: 0.1rem; }
+			.coupon span { flex: none; }
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			html { scroll-behavior: auto; }
+			.cis-blink { animation: none; }
+			.cis-scroll-container { overflow: visible; }
+			.cis-scroll-row { flex-wrap: wrap; }
+			.cis-scroll-text { animation: none; transform: none; white-space: normal; }
+		}
+	</style>
+</head>
+<body>
+
+<header class="hero">
+	<div class="nameboard sign sign--intercity">
+		<span class="stripes" aria-hidden="true"></span>
+		<svg class="logo" viewBox="497 15 106 115" fill="currentColor" aria-hidden="true" focusable="false">
+			<path d="M562.34,91.84c-0.38,0.49-0.76,0.98-1.13,1.47c-0.31,0.41-0.57,0.85-0.64,1.37h18.78 c0.63-0.9,1.23-1.82,1.76-2.78c0.01-0.02,0.02-0.04,0.03-0.06H562.34z"/>
+			<path d="M562.97,88.23c-0.03,0.51,0.07,1,0.23,1.48c0.16,0.48,0.08,0.92-0.22,1.32h18.62c0.17-0.35,0.31-0.72,0.3-1.13 c-0.01-0.56,0-1.11,0.02-1.67H562.97z"/>
+			<path d="M560.46,95.49c-0.16,0.77-0.52,1.46-1.03,2.11c-0.23,0.29-0.45,0.59-0.63,0.9h17.63 c0.16-0.21,0.33-0.42,0.49-0.63c0.62-0.79,1.24-1.58,1.84-2.38H560.46z"/>
+			<path d="M551.68,120.95c-0.06,0.14-0.12,0.28-0.17,0.43c-0.25,0.69-0.1,0.94,0.64,1.01c0.71,0.07,0.82,0.3,0.4,0.9 c-0.38,0.54-0.87,1.03-1.12,1.65h3.79c0.42-0.36,0.8-0.69,1.11-0.97c1.07-0.96,2.06-1.99,3.06-3.01H551.68z"/>
+			<path d="M554.05,111.73c-0.36,1.1-0.82,2.15-1.32,3.2c-0.08,0.16-0.15,0.32-0.22,0.49h12.04 c0.22-0.26,0.45-0.51,0.67-0.77c0.83-0.95,1.64-1.93,2.43-2.92H554.05z"/>
+			<path d="M560.47,81.62c-0.06,0.85,0.2,1.62,0.76,2.26h20.75c0-0.09-0.01-0.19-0.01-0.28 c-0.04-0.73-0.15-1.45-0.18-2.18h-21.31C560.47,81.49,560.48,81.55,560.47,81.62z"/>
+			<path d="M555.25,107.57c-0.29,0.68-0.56,1.36-0.68,2.1c-0.07,0.42-0.17,0.84-0.28,1.25h13.99 c0.61-0.81,1.21-1.62,1.79-2.46c0.2-0.3,0.41-0.59,0.62-0.89H555.25z"/>
+			<path d="M556.8,103.19c-0.3,0.66-0.47,1.36-0.66,2.05c-0.14,0.52-0.34,1.02-0.55,1.51h15.65 c0.41-0.6,0.79-1.21,1.09-1.85c0.28-0.58,0.58-1.15,0.89-1.71H556.8z"/>
+			<path d="M561.9,85.31c0.07,0.74,0.32,1.4,0.75,2.01c0.02,0.03,0.04,0.06,0.07,0.09h19.23 c0.03-0.88,0.07-1.75,0.06-2.63h-20.21C561.85,84.95,561.88,85.13,561.9,85.31z"/>
+			<path d="M572.52,54.97c-0.44,0.43-0.92,0.83-1.3,1.31c-0.01,0.01-0.01,0.02-0.02,0.03h18.58 c0.05-0.1,0.1-0.21,0.15-0.32c0.15-0.34,0.25-0.68,0.31-1.02H572.52z"/>
+			<path d="M569.42,58.26c-0.53,0.52-1.09,1.02-1.68,1.49h19.9c0.25-0.37,0.49-0.74,0.72-1.12 c0.07-0.12,0.15-0.25,0.23-0.37H569.42z"/>
+			<path d="M556.15,78.07c1.29,0.61,2.54,1.33,3.66,2.23c0.06,0.05,0.12,0.11,0.18,0.16h21.81 c0.01-0.13,0.03-0.27,0.05-0.4c0.16-1.02,0.78-1.62,1.6-1.99H556.15z"/>
+			<path d="M565.26,61.48c-0.22,0.13-0.44,0.27-0.67,0.4c-0.79,0.44-1.58,0.86-2.4,1.24h23.52 c0.01-0.03,0.02-0.06,0.04-0.09c0.21-0.54,0.48-1.05,0.77-1.54H565.26z"/>
+			<path d="M572.99,52.79h17.27c-0.05-0.39-0.11-0.78-0.17-1.17c0-0.01,0-0.01,0-0.02h-17.11 C572.96,52,572.96,52.4,572.99,52.79z"/>
+			<path d="M531.07,73.02c-0.32,0.15-0.64,0.3-0.95,0.45h67.76c1.25-0.26,2.52-0.26,3.84-0.17 c0.18,0.01,0.48,0.03,0.54-0.22c0.06-0.29-0.19-0.38-0.39-0.46c-0.54-0.2-1.09-0.37-1.62-0.58c-0.48-0.19-1.02-0.25-1.41-0.64 c-0.01-0.01-0.01-0.01-0.02-0.02h-66.33C532.43,72.08,532.02,72.57,531.07,73.02z"/>
+			<path d="M531.63,69.34c0.26,0.1,0.56,0.25,0.65,0.57c0.03,0.1,0.05,0.2,0.08,0.3h65.31c-0.57-0.61-1.14-1.21-1.78-1.75 c-0.11-0.09-0.22-0.19-0.33-0.28h-65.91C530.26,68.65,530.91,69.05,531.63,69.34z"/>
+			<path d="M551.04,65.43c-4.23,0.61-8.42,0.13-12.58-0.68h-16.29c0.11,0.04,0.22,0.08,0.33,0.12 c1.42,0.54,2.79,1.2,4.28,1.53c0.3,0.07,0.59,0.16,0.87,0.28h65.96c-0.2-0.13-0.41-0.25-0.62-0.36c-1.45-0.75-3.02-1.01-4.63-1.12 c-0.72-0.05-1.45-0.07-2.17-0.14c-0.37-0.03-0.6-0.13-0.71-0.32h-29.31C554.46,65,552.74,65.18,551.04,65.43z"/>
+			<path d="M552.25,116.24c-0.02,0.09-0.04,0.17-0.05,0.26c-0.08,0.59,0.23,0.89,0.8,0.78c0.11-0.02,0.21-0.07,0.32-0.09 c0.18-0.03,0.41-0.1,0.53,0.05c0.14,0.17-0.03,0.35-0.13,0.49c-0.21,0.29-0.43,0.56-0.65,0.84c-0.38,0.5-0.71,1.02-1,1.57h8.14 c0.01-0.01,0.01-0.01,0.02-0.02c1.26-1.25,2.44-2.56,3.61-3.89H552.25z"/>
+			<path d="M577.57,33.39c-0.07,0.27-0.14,0.55-0.22,0.82h11.17c-0.04-0.27-0.09-0.54-0.13-0.82H577.57z"/>
+			<path d="M578.65,29.26c-0.02,0.04-0.04,0.07-0.06,0.11c-0.12,0.22-0.2,0.46-0.26,0.71h9.44 c-0.06-0.27-0.12-0.54-0.18-0.82H578.65z"/>
+			<path d="M576.25,37.49c-0.11,0.27-0.21,0.54-0.31,0.82h13.21c-0.03-0.27-0.07-0.54-0.11-0.82H576.25z"/>
+			<path d="M574.27,44.83c-0.08,0.32-0.16,0.64-0.24,0.97h15.48c0.01-0.32,0.01-0.64,0.01-0.97H574.27z"/>
+			<path d="M575.04,41.17c-0.07,0.3-0.13,0.59-0.19,0.89h14.58c-0.01-0.3-0.03-0.59-0.04-0.89H575.04z"/>
+			<path d="M583.44,16.1c-0.08,0.19-0.18,0.39-0.27,0.58h1.34c-0.08-0.23-0.21-0.43-0.42-0.64 C583.77,15.71,583.53,15.89,583.44,16.1z"/>
+			<path d="M580.3,24.93c-0.09,0.27-0.18,0.54-0.27,0.82h6.74c-0.09-0.27-0.19-0.55-0.27-0.82H580.3z"/>
+			<path d="M581.84,20.49c-0.09,0.28-0.18,0.55-0.29,0.81c0,0,0,0,0,0h4.12c-0.08-0.27-0.16-0.54-0.24-0.82H581.84z"/>
+			<path d="M527.14,80.46c2.55-0.61,5.09-1.25,7.63-1.87c0.1-0.03,1.03-0.25,2.13-0.52h-15.49 c-0.09,0.05-0.17,0.09-0.26,0.14c-1.1,0.64-2.16,1.29-3.4,1.65c-0.62,0.18-1.23,0.38-1.83,0.6H527.14z"/>
+			<path d="M550.88,125.76c-0.38,0.39-0.81,0.75-0.89,1.38c-0.07,0.56-0.53,1.01-0.59,1.64c-0.02,0.18-0.04,0.3,0.01,0.35 c0.05,0.05,0.13,0.04,0.18,0.04c0.58-0.06,1.12-0.43,1.12-0.43c0.13-0.09,0.27-0.2,0.54-0.41c0.18-0.14,0.32-0.26,0.55-0.45 c0.28-0.23,0.49-0.41,0.49-0.42c0.6-0.51,1.31-1.11,1.99-1.69H550.88z"/>
+			<path d="M573.44,48.28c-0.01,0.06-0.03,0.12-0.04,0.18c-0.06,0.29-0.11,0.57-0.16,0.86h16.49 c-0.05-0.35-0.09-0.69-0.13-1.04H573.44z"/>
+			<path d="M513.61,83.89c3.25-0.73,6.46-1.63,9.68-2.46h-9.78c-0.94,0.47-1.83,1.04-2.88,1.26 c-1.28,0.26-2.49,0.74-3.7,1.21H513.61z"/>
+			<path d="M558.44,99.32c-0.11,0.34-0.17,0.7-0.15,1.09c0.01,0.27-0.12,0.53-0.23,0.79c-0.19,0.44-0.5,0.79-0.78,1.17 h16.44c0.64-1.05,1.35-2.06,2.09-3.05H558.44z"/>
+			<path d="M500.22,87.41c0.53-0.16,1.03-0.3,1.4-0.42c0.64-0.19,1.91-0.48,2.59-0.65c1.85-0.48,3.01-0.87,4.92-1.26 c0.4-0.08,0.8-0.19,1.2-0.3h-5.84c-0.96,0.35-1.99,0.73-2.77,0.96c-0.2,0.06-3.83,1.46-4.03,1.58c-0.04,0.03-0.08,0.05-0.11,0.08 H500.22z"/>
+			<path d="M509.02,59.45c-0.73-0.12-1.44-0.36-2.19-0.33c-0.2,0.01-0.48-0.03-0.54,0.2c-0.07,0.25,0.15,0.34,0.34,0.42 h4.14C510.18,59.65,509.6,59.55,509.02,59.45z"/>
+			<path d="M528.98,62.94c-2.86-0.56-5.75-0.97-8.62-1.46h-9.47c1.19,0.36,2.4,0.63,3.62,0.9 c0.96,0.21,1.91,0.46,2.86,0.74h12.54C529.59,63.05,529.29,63,528.98,62.94z"/>
+			<path d="M528.34,74.59c-0.03,0.03-0.06,0.05-0.09,0.08c-0.48,0.44-0.95,0.87-1.57,1.12c-0.95,0.38-1.87,0.8-2.81,1.21 c-0.03,0.01-0.05,0.02-0.08,0.03h17.3c1.96-0.49,3.93-0.87,5.99-0.81c2.14,0.06,4.24,0.25,6.27,0.81h34.49 c2.47-0.53,4.84-1.35,7.12-2.44H528.34z"/>
+		</svg>
+		<div>
+			<h1>Alfie Ralls</h1>
+			<p>Computer Science student at Lancaster University</p>
+		</div>
+	</div>
+
+	<div class="board sign">
+		<div class="cis-board">
+			<div class="cis-row">
+				<span class="cis-rank">1st</span>
+				<span class="cis-time">11<span class="cis-colon">:</span>16</span>
+				<span class="cis-plat">4</span>
+				<span class="cis-dest">BSc Computer Science</span>
+				<span class="cis-status cis-blink cis-on-time">On time</span>
+			</div>
+
+			<div class="cis-scroll-row">
+				<span class="cis-calling-label">Calling at</span>
+				<div class="cis-scroll-container">
+					<span class="cis-scroll-text" style="animation-duration: 30s;">Software Development, Fundamentals of Computer Science, Digital Systems, Professionalism in Practice, Group Projects, Internet Applications, Data Engineering, Networks and Systems, HCI: Designing for People, Sustainable Computing, Secure Data and Systems, and Applied Security Methods</span>
+				</div>
+			</div>
+
+			<div class="cis-row">
+				<span class="cis-rank">2nd</span>
+				<span class="cis-time">O6<span class="cis-colon">:</span>OO</span>
+				<span class="cis-plat">1</span>
+				<span class="cis-dest">Cairngorms Nat. Park</span>
+				<span class="cis-status">Expected</span>
+			</div>
+
+			<div class="cis-scroll-row">
+				<span class="cis-calling-label">Calling at</span>
+				<div class="cis-scroll-container">
+					<span class="cis-scroll-text" style="animation-duration: 18s;">65L Backpack, OS Maps, Jetboil, Phoxx II V2, Sleeping Bag, Lantern, Hiking Poles, Raincoat, Walking Boots, Dry Socks, Water, and Food Packets</span>
+				</div>
+			</div>
+		</div>
+
+		<p class="board-note">Do not use for actual train times.</p>
+	</div>
+
+</header>
+
+<main>
+	<section id="about" class="leaflet leaflet--about">
+		<header class="leaflet-head">
+			<p class="eyebrow">Welcome aboard</p>
+			<h2>About</h2>
+		</header>
+		<div class="leaflet-body">
+			<p>Hi! I'm Alfie, a Computer Science student at Lancaster University, currently in my second year and really enjoying it.</p>
+			<p>I'm the elected Engineering Manager for the student radio station, <a href="https://www.bailriggfm.co.uk" target="_blank" rel="noopener noreferrer">95.3 Bailrigg FM</a>, where I look after the servers and technical equipment that keep us on air. It's a lot of responsibility, but very rewarding.</p>
+			<p>Over the summer I did a placement with Network Rail in the Engineering and Asset Management team in Scotland. I sat in on meetings well beyond that remit, including one with contractors on an electrification project, which gave me a broad view of how the UK's railways are managed, maintained and upgraded.</p>
+			<p>Right now I'm working through second-year coursework, with this website, Bailrigg FM and other projects on the side.</p>
+
+			<div class="skills">
+				<p><strong>Languages:</strong> Python, Java, C/C++, Bash, HTML/CSS, SQL<br>
+					<strong>Frameworks:</strong> React, Astro, deck.gl<br>
+					<strong>Infrastructure:</strong> Linux, Proxmox, Docker, Pi-hole<br>
+					<strong>Hardware &amp; RF:</strong> Raspberry Pi, server maintenance, VHF transmission<br>
+					<strong>Other:</strong> Git, OpenStreetMap data, realtime APIs, JetBrains IDEs</p>
+			</div>
+		</div>
+	</section>
+
+	<section id="projects" class="leaflet leaflet--projects">
+		<header class="leaflet-head">
+			<p class="eyebrow">Service information</p>
+			<h2>Projects</h2>
+		</header>
+		<div class="leaflet-body">
+			{projects.map((p) => (
+				<article class="project">
+					<h3>{p.href ? <a href={p.href}>{p.name}</a> : p.name}</h3>
+					<p class="stack">{p.stack}</p>
+					<p>{p.text}</p>
+					{p.link && <p><a href={p.link.href} target="_blank" rel="noopener noreferrer">{p.link.label} &rarr;</a></p>}
+				</article>
+			))}
+		</div>
+	</section>
+
+	<section id="photos" class="leaflet leaflet--photos">
+		<header class="leaflet-head">
+			<p class="eyebrow">Make a day of it</p>
+			<h2>Photographs</h2>
+			<span class="sticker" aria-hidden="true">Day<br>out</span>
+		</header>
+		<div class="leaflet-body">
+			<p>Architecture, railways and infrastructure, all shot on my iPhone 17.</p>
+			<ul class="gallery">
+				{photos.map((photo, i) => (
+					<li>
+						<figure>
+							<Image
+								src={photo.asset}
+								alt={photo.title}
+								width={600}
+								quality={85}
+								loading={i < 3 ? "eager" : "lazy"}
+							/>
+							<figcaption>{photo.title}</figcaption>
+						</figure>
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	<section id="contact" class="leaflet leaflet--contact">
+		<header class="leaflet-head">
+			<p class="eyebrow">Enquiries &amp; bookings</p>
+			<h2>Contact</h2>
+		</header>
+		<div class="leaflet-body">
+			<ul class="coupon">
+				<li><span>Email</span><a href="mailto:scroll_cosy_2v@icloud.com">scroll_cosy_2v@icloud.com</a></li>
+				<li><span>GitHub</span><a href="https://github.com/Alfie-Sci">github.com/Alfie-Sci</a></li>
+				<li><span>LinkedIn</span><a href="https://www.linkedin.com/in/alfie-ralls-7b80ab386/">linkedin.com/in/alfie-ralls</a></li>
+			</ul>
+		</div>
+	</section>
+</main>
+
+<p class="motto">We’re getting there.</p>
+
+<footer>
+	<div class="hazard" aria-hidden="true"></div>
+	<p>Lancaster, UK. This website does not use JavaScript.</p>
+</footer>
+
+</body>
+</html>
