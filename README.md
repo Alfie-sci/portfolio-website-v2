@@ -11,8 +11,9 @@ This website is hosted and managed by Cloudflare workers & pages. Which is free 
 ## To-Dos
 
 ## Licensing
-The source code of this project is licensed under the MIT License — 
-see LICENSE for details.
+The source code of this project is licensed under the MIT License — see LICENSE for details.
+
+The Intercity Swallow logo is used under Creative Commons CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/ and has been adapted by removing the text from the Swallow icon, isolating the Swallow logo. I found the logo on Wikimedia Commons uploaded under the same license: https://commons.wikimedia.org/wiki/File:BR_InterCity_Logo.svg
 
 All photographs are ©Alfie Ralls. All rights reserved.
 
