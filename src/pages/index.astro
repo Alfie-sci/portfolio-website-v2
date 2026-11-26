@@ -89,7 +89,11 @@ const projects = [
 		}
 
 		* { box-sizing: border-box; }
-		html { scroll-behavior: smooth; }
+		html {
+			scroll-behavior: smooth;
+			-webkit-text-size-adjust: 100%;
+			text-size-adjust: 100%;
+		}
 
 		body {
 			margin: 0;
@@ -97,6 +101,7 @@ const projects = [
 			color: var(--wall-text);
 			font-family: var(--sans);
 			line-height: 1.55;
+			overflow-x: clip;   /* backstop only; the real causes are fixed below */
 		}
 
 		:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
@@ -113,6 +118,10 @@ const projects = [
 			border-radius: var(--radius);
 			padding: clamp(1.25rem, 3vw, 2rem);
 			box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+		}
+
+		.platform-sign::before {
+			display: none;
 		}
 
 		/* The thin keyline just inside the edge, with a concentric corner radius
@@ -180,6 +189,8 @@ const projects = [
 			gap: clamp(1rem, 3vw, 2rem);
 		}
 
+		.nameboard > div { min-width: 0; }
+
 		.logo { flex: none; width: auto; height: clamp(4rem, 10vw, 7rem); }
 
 		.nameboard h1 {
@@ -243,7 +254,7 @@ const projects = [
 		.cis-time   { width: 4em; flex: none; }
 		.cis-plat   { width: 2.4em; flex: none; text-align: center; }
 		.cis-dest   { flex: 1; min-width: 0; padding-left: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-		.cis-status { width: 6em; flex: none; text-align: right; }
+		.cis-status { width: 6em; flex: none; text-align: right; white-space: nowrap; }
 
 		.cis-scroll-row {
 			display: flex;
@@ -282,6 +293,101 @@ const projects = [
 			font-weight: 400;
 			letter-spacing: 0;
 			color: #8a8a8a;
+		}
+
+		/* ---------- Platform sign ---------- */
+		.platform-sign {
+			--bg: light-dark(var(--white), var(--black));
+			--fg: light-dark(var(--black), var(--white));
+			justify-self: center;
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			padding: 0.9rem 1.6rem;
+			text-decoration: none;
+			font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+			font-weight: 700;
+			letter-spacing: -0.01em;
+		}
+
+		.platform-arrow {
+			width: 1.1rem;
+			height: auto;
+			transition: transform 0.15s ease;
+		}
+
+		/* hover inverts the sign: white background, black text and keyline */
+		.platform-sign:focus-visible {
+			--bg: light-dark(var(--black), var(--white));
+			--fg: light-dark(var(--white), var(--black));
+		}
+		.platform-sign:focus-visible .platform-arrow { transform: translateY(0.3rem); }
+
+		/* only on devices that can really hover, so touch screens don't get a stuck hover state */
+		@media (hover: hover) {
+			.platform-sign:hover {
+				--bg: light-dark(var(--black), var(--white));
+				--fg: light-dark(var(--white), var(--black));
+			}
+			.platform-sign:hover .platform-arrow { transform: translateY(0.3rem); }
+		}
+
+		/* Patina: grime, speckle, scratches and rain streaks */
+		.platform-sign {
+			--wear: color-mix(in srgb, var(--fg) 22%, transparent);   /* dirt and scuffs */
+			--wear-soft: color-mix(in srgb, var(--fg) 10%, transparent);
+		}
+
+		.platform-sign::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			border-radius: inherit;
+			pointer-events: none;
+			background-color: rgba(176, 138, 62, 0.06);
+			background-image:
+				/* rust and paint loss at two corners */
+				radial-gradient(circle at 0 0, rgba(120, 60, 20, 0.35), transparent 1.3rem),
+				radial-gradient(circle at 100% 100%, rgba(120, 60, 20, 0.28), transparent 1.6rem),
+					/* scratches */
+				repeating-linear-gradient(100deg, transparent 0, transparent 41px, var(--wear-soft) 41px, var(--wear-soft) 42px, transparent 42px, transparent 97px),
+				repeating-linear-gradient(78deg, transparent 0, transparent 59px, var(--wear-soft) 59px, var(--wear-soft) 60px, transparent 60px, transparent 131px),
+					/* speckle */
+				radial-gradient(circle, var(--wear) 0.6px, transparent 1px),
+				radial-gradient(circle, var(--wear-soft) 0.7px, transparent 1.2px);
+			background-size:
+				100% 100%,
+				100% 100%,
+				2px 100%,
+				3px 100%,
+				2px 100%,
+				100% 100%,
+				100% 100%,
+				23px 19px,
+				31px 37px;
+			background-position:
+				0 0,
+				0 0,
+				18% 0,
+				61% 0,
+				84% 0,
+				0 0,
+				0 0,
+				0 0,
+				7px 11px;
+			background-repeat:
+				no-repeat,
+				no-repeat,
+				no-repeat,
+				no-repeat,
+				no-repeat,
+				no-repeat,
+				no-repeat,
+				repeat,
+				repeat;
+			box-shadow:
+				inset 0 0 1.4rem var(--wear-soft),
+				inset 0 0 0.5rem rgba(150, 110, 40, 0.18);
 		}
 
 		/* ---------- Leaflets ---------- */
@@ -333,7 +439,7 @@ const projects = [
 		.leaflet-body > :last-child { margin-bottom: 0; }
 
 		.leaflet p { margin: 0 0 1rem; font-size: 1.05rem; }
-		.leaflet a { color: var(--accent); text-underline-offset: 3px; }
+		.leaflet a { color: var(--accent); text-underline-offset: 3px; overflow-wrap: anywhere; }
 		.leaflet a:hover { color: #151515; }
 
 		/* 1. About: grey enamel and red/white stripes, InterCity style */
@@ -372,7 +478,7 @@ const projects = [
 		.project {
 			counter-increment: svc;
 			display: grid;
-			grid-template-columns: 2.8rem 1fr;
+			grid-template-columns: 2.8rem minmax(0, 1fr);
 			column-gap: 1rem;
 		}
 		.project::before {
@@ -432,7 +538,7 @@ const projects = [
 
 		.gallery {
 			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+			grid-template-columns: repeat(auto-fill, minmax(min(170px, 100%), 1fr));
 			gap: 1.25rem;
 			margin: 0;
 			padding: 0;
@@ -518,6 +624,7 @@ const projects = [
 			padding: 1.25rem 1rem 1.75rem;
 			text-align: center;
 			font-size: 0.9rem;
+			overflow-wrap: anywhere;
 		}
 
 		/* ---------- Small screens ---------- */
@@ -526,17 +633,34 @@ const projects = [
 		}
 
 		@media (max-width: 520px) {
+			/* departure board */
 			.cis-board { font-size: 0.85rem; }
+			.cis-row { align-items: flex-start; }
 			.cis-rank { width: 2.2em; }
 			.cis-time { width: 3.6em; }
 			.cis-plat { width: 1.8em; }
-			.cis-status { width: 5.2em; }
-			.cis-dest { padding-left: 0.5em; }
-			.leaflet-head, .leaflet-body { padding-left: 1.1rem; padding-right: 1.1rem; }
-			.leaflet-body { padding-top: 1.25rem; }
-			.project { grid-template-columns: 2.2rem 1fr; column-gap: 0.75rem; }
+			.cis-status { width: 5.8em; }
+			.cis-dest { padding-left: 0.5em; white-space: normal; line-height: 1.15; }
+
+			/* leaflets */
+			.leaflet { margin-bottom: 1.75rem; }
+			.leaflet-head { padding: 1.25rem 1.1rem 2rem; }
+			.leaflet--about .leaflet-head { padding-bottom: 3rem; }
+			.leaflet-head h2 { font-size: clamp(1.9rem, 10vw, 2.6rem); }
+			.leaflet-body { padding: 1.25rem 1.1rem; }
+			.leaflet--about .leaflet-body > p:first-child { font-size: 1.2rem; }
+			.skills { padding: 0.9rem 1rem; }
+
+			.project { grid-template-columns: 2.2rem minmax(0, 1fr); column-gap: 0.75rem; }
 			.project::before { width: 2.2rem; height: 2.2rem; font-size: 1.2rem; }
-			.sticker { width: 4rem; height: 4rem; font-size: 0.95rem; right: 1rem; }
+
+			/* photos: two columns instead of one very tall column */
+			.gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+			.gallery figcaption { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+			.sticker { width: 3.4rem; height: 3.4rem; font-size: 0.85rem; right: 0.9rem; }
+
+			/* contact */
+			.coupon { padding: 1.4rem 1rem 0.5rem; }
 			.coupon li { flex-direction: column; gap: 0.1rem; }
 			.coupon span { flex: none; }
 		}
@@ -544,9 +668,10 @@ const projects = [
 		@media (prefers-reduced-motion: reduce) {
 			html { scroll-behavior: auto; }
 			.cis-blink { animation: none; }
-			.cis-scroll-container { overflow: visible; }
+			.cis-scroll-container { overflow: visible; flex: 1 1 100%; }
 			.cis-scroll-row { flex-wrap: wrap; }
 			.cis-scroll-text { animation: none; transform: none; white-space: normal; }
+			.platform-arrow { transition: none; }
 		}
 	</style>
 </head>
@@ -634,6 +759,13 @@ const projects = [
 		<p class="board-note">Do not use for actual train times.</p>
 	</div>
 
+	<a class="platform-sign sign" href="#about">
+		<span class="platform-label">All Platforms</span>
+		<svg class="platform-arrow" viewBox="0 0 24 40" aria-hidden="true" focusable="false">
+			<path fill="currentColor" d="M8 0H16V22H24L12 40L0 22H8Z" />
+		</svg>
+	</a>
+
 </header>
 
 <main>
@@ -643,8 +775,8 @@ const projects = [
 			<h2>About</h2>
 		</header>
 		<div class="leaflet-body">
-			<p>Hi! I'm Alfie, a Computer Science student at Lancaster University, currently in my second year and really enjoying it.</p>
-			<p>I'm the elected Engineering Manager for the student radio station, <a href="https://www.bailriggfm.co.uk" target="_blank" rel="noopener noreferrer">95.3 Bailrigg FM</a>, where I look after the servers and technical equipment that keep us on air. It's a lot of responsibility, but very rewarding.</p>
+			<p>Hi! I'm Alfie. I'm a Computer Science student at Lancaster University, and Engineering Manager at Bailrigg FM.</p>
+			<p><a href="https://www.bailriggfm.co.uk" target="_blank" rel="noopener noreferrer">95.3 Bailrigg FM</a>, is Lancaster's student radio station. It is here where I look after the servers and technical equipment that keep us on air. It's a lot of responsibility, but very rewarding.</p>
 			<p>Over the summer I did a placement with Network Rail in the Engineering and Asset Management team in Scotland. I sat in on meetings well beyond that remit, including one with contractors on an electrification project, which gave me a broad view of how the UK's railways are managed, maintained and upgraded.</p>
 			<p>Right now I'm working through second-year coursework, with this website, Bailrigg FM and other projects on the side.</p>
 
@@ -682,7 +814,7 @@ const projects = [
 			<span class="sticker" aria-hidden="true">Day<br>out</span>
 		</header>
 		<div class="leaflet-body">
-			<p>Architecture, railways and infrastructure, all shot on my iPhone 17.</p>
+			<p>All shot on my iPhone 17.</p>
 			<ul class="gallery">
 				{photos.map((photo, i) => (
 					<li>
@@ -691,8 +823,10 @@ const projects = [
 								src={photo.asset}
 								alt={photo.title}
 								width={600}
+								widths={[300, 450, 600]}
+								sizes="(max-width: 520px) 45vw, 230px"
 								quality={85}
-								loading={i < 3 ? "eager" : "lazy"}
+								loading="lazy"
 							/>
 							<figcaption>{photo.title}</figcaption>
 						</figure>
